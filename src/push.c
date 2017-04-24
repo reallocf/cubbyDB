@@ -11,7 +11,7 @@ static t_elem	*new_elem(char *key, char *val)
     return (ret);
 }
 
-static int	update_or_chain(t_cubby *cubby, char *key, char *val)
+static void	update_or_chain(t_elem *slot, char *key, char *val)
 {
     if (ft_strequ(slot->key, key))
     {
@@ -33,14 +33,14 @@ int	cubby_pusher(t_cubby *cubby, char *key, char *val, int persist)
 {
     unsigned int	key_hash;
 
-    if (!cubby || !key)
+    if (!cubby || !key || !val || !*key)
 	return (-1);
     if (ft_strchr(key, '=') || ft_strchr(val, '='))
 	return (-1);
     key_hash = hash(key);
     errno = 0;
     if (cubby->slot[key_hash])
-	update_or_chain(cubby, key, val, cubby->slot[key_hash]);
+	update_or_chain(cubby->slot[key_hash], key, val);
     else
 	cubby->slot[key_hash] = new_elem(key, val);
     if (persist)

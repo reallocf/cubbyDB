@@ -32,6 +32,7 @@ void			cubby_close(t_cubby **cubby);
 /* For the Program */
 unsigned int		hash(char *key);
 int			cubby_pusher(t_cubby *cubby, char *key, char *val, int persist);
+int			cubby_remover(t_cubby *cubby, char *key, int persist);
 void			delete_slot(t_elem **slot);
 
 #endif

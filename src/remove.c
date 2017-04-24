@@ -10,15 +10,15 @@ void		delete_slot(t_elem **slot)
     *slot = NULL;
 }
 
-static int	find_and_remove(t_cubby *cubby, char *key, t_elem *slot)
+static int	find_and_remove(t_cubby *cubby, char *key, t_elem *slot, unsigned int hashed_key, int persist)
 {
     t_elem	*temp;
 
     if (ft_strequ(slot->key, key))
     {
-	if (ft_printf("%w=%s\n", cubby->fd, key) == -1)
+	if (persist && ft_printf("%w=%s\n", cubby->fd, key) == -1)
 	    return (-1);
-	cubby->slot = slot->next;
+	cubby->slot[hashed_key] = slot->next;
 	delete_slot(&slot);
 	return (0);
     }
@@ -26,11 +26,11 @@ static int	find_and_remove(t_cubby *cubby, char *key, t_elem *slot)
     {
 	if (ft_strequ(slot->next->key, key))
 	{
-	    if (ft_printf("%w=%s\n", cubby->fd, key) == -1)
+	    if (persist && ft_printf("%w=%s\n", cubby->fd, key) == -1)
 		return (-1);
 	    temp = slot->next;
 	    slot->next = slot->next->next;
-	    delete_del(&temp);
+	    delete_slot(&temp);
 	    return (0);
 	}
 	slot = slot->next;
@@ -38,15 +38,20 @@ static int	find_and_remove(t_cubby *cubby, char *key, t_elem *slot)
     return (-1);
 }
 
-int		cubby_remove(t_cubby *cubby, char *key)
+int		cubby_remover(t_cubby *cubby, char *key, int persist)
 {
     unsigned int	hashed_key;
 
-    if (!cubby || !key)
+    if (!cubby || !key || !*key)
 	return (-1);
     hashed_key = hash(key);
     if (cubby->slot[hashed_key])
-	return (find_and_remove(cubby, key, cubby->slot[hashed_key]));
+	return (find_and_remove(cubby, key, cubby->slot[hashed_key], hashed_key, persist));
     else
 	return (-1);
+}
+
+int		cubby_remove(t_cubby *cubby, char *key)
+{
+    return (cubby_remover(cubby, key, 1));
 }
